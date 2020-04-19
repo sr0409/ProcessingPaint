@@ -1,24 +1,35 @@
-//Sk04: Draw Lines w/mouse
+//Developers: Stanley Razumov, Micayla Smith, Allison Dogget
+//Program Name: Processing Paint
+//Date: 04/30/2020
+//Credits to Ethan Smith for help in the early development of the program.
+
+//Controls : 1. UP arrow key increases the stroke weight for the shapes up to 50 with an increment of 1  1 for each key press registered
+//           2. DOWN arrow key decreases the stroke weight for the shapes down to 1 with the increment of 1 for each key key press registered
+//           3. SPACE resets the image to its original state
+//           4. Click on the desired tool to use it
+
 int sw = 5; // Stroke Weight
+//Use String[0] for your desired image
 String[] files = {"charlton vale 3.jpg", "png/001-pencil.png", "png/002-paintbrush.png", "png/016-paintbrush-1.png", "png/031-eyedropper.png"
 , "png/024-eraser.png", "png/rectangle.png", "png/circle.png", 
 "png/ellipse.png","png/triangle.png" ,"png/FruitBowl.jpg", "png/spectrum.jpg"};
 PImage[] images = new PImage[files.length];
-PImage grayFruit, negativeFruit, img, paintedImg;
-String fileName = "charlton vale 3.jpg";
+PImage grayFruit, negativeFruit, img, paintedImg, currentImg;
+String fileName = files[0];
 int iconMargin = 10;
 int iconOffset;
 int iconXOffset;
 int iconYOffset;
 int offset = 190;
-color c;
+color c = 0;
 boolean pencil = true, brush=false, dropper=false,brush2=false,eraser=false,rectangle=false,circle=false,oval=false,triangle=false;
 int startX, startY, endX, endY;
 int posX, posY, shapeWidth, shapeHeight;
+ArrayList <PVector> points = new ArrayList <PVector> ();
+
 void setup(){
   image(img,offset,0);
-  //First make a test image to debug your histograms
-  //img = makeTestImage(1000, 1000, color(255, 128, 55));
+
   for(int i = 0; i < files.length; i++){
     images[i] = loadImage(files[i]);
     if(i >= 1){
@@ -36,14 +47,18 @@ void setup(){
 
 public void settings(){
   img = loadImage(fileName);
+  currentImg = img;
   println(img.height, " " , img.width);
   size(int(img.width+offset), int(img.height));
 }
+
 void draw(){
   //Draw toolbar
+  strokeWeight(1);
   rect(0,0,offset,height);
   iconXOffset = 0;
   iconYOffset = 15;
+  //Draw rows of tools
   for(int i = 1; i < images.length-2; i++){
     switch(i%3){
       case 0:
@@ -63,12 +78,12 @@ void draw(){
       iconXOffset += 60;
       break;
     }
-    stroke(255,0,0);
+    stroke(c);
   }
   iconYOffset+= 11;
   line(0, iconYOffset, offset, iconYOffset);
   iconYOffset+= 30;
-  //Filters
+  //Filter icons
   image(images[10], iconMargin + iconXOffset, iconMargin+iconYOffset);
 
   iconXOffset += 60;
@@ -106,10 +121,9 @@ void draw(){
       line(mouseX, mouseY, pmouseX, pmouseY);
     }
     else if(dropper){
-      
+      c = get(mouseX, mouseY);
     }
-    else if(eraser){
-      
+    else if(eraser){ 
       PImage target =images[0].get(mouseX-offset, mouseY, 25,25);
       image(target, mouseX, mouseY);
     }
@@ -118,51 +132,41 @@ void draw(){
     }
     else if(circle){
       noFill();
-      ellipseMode(CORNER);  // Set ellipseMode to CENTER
+      ellipseMode(CORNER);  // Set ellipseMode to CORNER
     }
     else if(oval){
       noFill();
-      ellipseMode(CORNERS);  // Set ellipseMode to CENTER
+      ellipseMode(CORNERS);  // Set ellipseMode to CORNERS
     }
     else if(triangle){
-   
+       noFill();
     }
   }
-  strokeWeight(1);
-}
+  
+}//end draw
 
 void keyPressed(){
  if(key == ' '){
-  clear(); 
- }
- else if(key == 'r'){
-  stroke(255,0,0);
- }
- else if(key == 'g'){
-  stroke(0,255,0);
- } 
- else if(key == 'b'){
-  stroke(0,0,255);
+  image(img, offset, 0);
  }
  else if(key == CODED){
     if(keyCode == UP){
       if(sw < 50){
-        sw+=1;
-        strokeWeight(sw);
+        sw+=1;    
       }
     }
     else if(keyCode == DOWN){
       if(sw > 1){
         sw-=1;
-        strokeWeight(sw);
+         
        }  
      }
   }
-}
+}//end KeyPressed
 
 void mousePressed(){
   //tools
- // paintedImg = 
+
   startX = mouseX; startY = mouseY;
    if((mouseX >= 10 && mouseX <= 60)&&(mouseY >= 25 && mouseY <= 75)) {
      print("Pencil");
@@ -214,12 +218,30 @@ void mousePressed(){
    }
    
    //Filters
-   if((mouseX >= 10 && mouseX <= 60)&&(mouseY >= 231 && mouseY <= 281)) print("Normal");
-   if((mouseX >= 70 && mouseX <= 120)&&(mouseY >= 231 && mouseY <= 281)) print("Gray");
-   if((mouseX >= 130 && mouseX <= 180)&&(mouseY >= 231 && mouseY <= 281)) print("Inverse");
-   
+   if((mouseX >= 10 && mouseX <= 60)&&(mouseY >= 231 && mouseY <= 281)){
+     print("Normal");
+     image(img, offset, 0);
+   }
+   if((mouseX >= 70 && mouseX <= 120)&&(mouseY >= 231 && mouseY <= 281)){
+     print("GRAY");
+     currentImg = img.copy();
+     currentImg.filter(GRAY);
+     image(currentImg, offset, 0);
+   }
+   if((mouseX >= 130 && mouseX <= 180)&&(mouseY >= 231 && mouseY <= 281)){
+     print("Inverse");
+     currentImg = img.copy();
+     currentImg.filter(INVERT);
+     image(currentImg, offset, 0);
+   }
+     
    //Colors
    if((mouseX >= 1 && mouseX <= 190)&&(mouseY >= 300 && mouseY <= 490)) print("Colors");
+}//End MousePresed
+
+void triangleWrapper(float startx,float starty,float endx,float endy){
+  triangle(startx + (endx - startx)/2,endy, startx, starty, endx, starty);
+  
 }
 
 void mouseReleased() {
@@ -239,19 +261,24 @@ void mouseReleased() {
   posY = startY;
   shapeWidth = mouseX;
   shapeHeight = mouseY;
-  //rectangle handling
+  //rectangle shape handling
   if(rectangle){
+    strokeWeight(sw);
     rect(startX, startY, mouseX, mouseY);
+
   }
-  //circle handling
+  //circle shape handling
   else if(circle){
+    strokeWeight(sw);
     if(endX-startX>endY-startY){
-    circle(startX, startY, endX-startX);
+      circle(startX, startY, endX-startX);
     }
     else{
       circle(startX, startY, endY-startY);
     }
+    
   }
+  // Oval shape handling
   else if(oval){
    if(posX < shapeWidth){
     int temp = shapeWidth;
@@ -263,9 +290,12 @@ void mouseReleased() {
     shapeHeight = posY;
     posY = temp;
    }
+   strokeWeight(sw);
     ellipse(posX, posY, shapeWidth, shapeHeight);
   }
+  //triangle shape handling
   else if(triangle){
-     triangle(posX, posY, 100,100,100,100);
+     triangleWrapper(startX, startY, endX, endY);
+     
   }
-}
+} // end MouseReleased
