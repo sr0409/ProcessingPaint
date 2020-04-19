@@ -1,15 +1,18 @@
-//Developers: Stanley Razumov, Micayla Smith, Allison Dogget
+//Developers: Stanley Razumov, Micayla King, Allison Doggett
+//Group color: Ultraviolet 
 //Program Name: Processing Paint
 //Date: 04/30/2020
-//Credits to Ethan Smith for help in the early development of the program.
+//Credits to Ethan Smith for helping in the early to mid stages of development.
 
-//Controls : 1. UP arrow key increases the stroke weight for the shapes up to 50 with an increment of 1  1 for each key press registered
-//           2. DOWN arrow key decreases the stroke weight for the shapes down to 1 with the increment of 1 for each key key press registered
-//           3. SPACE resets the image to its original state
-//           4. Click on the desired tool to use it
+//Controls and usage info : 1. UP arrow key increases the stroke weight for the shapes up to 25 with an increment of 1 for each key press registered
+//                          2. DOWN arrow key decreases the stroke weight for the shapes down to 1 with the increment of 1 for each key key press registered
+//                          3. SPACE resets the image to its original state
+//                          4. Click on the desired tool to use it
+//                          5. The current picked color is shown as the color of the tool panel border (black by default)
+//                          6. Colors can be picked from both the color spectrum on the toolbar as well as from the image itself
 
 int sw = 5; // Stroke Weight
-//Use String[0] for your desired image
+//Use files[0] for your desired image
 String[] files = {"charlton vale 3.jpg", "png/001-pencil.png", "png/002-paintbrush.png", "png/016-paintbrush-1.png", "png/031-eyedropper.png"
 , "png/024-eraser.png", "png/rectangle.png", "png/circle.png", 
 "png/ellipse.png","png/triangle.png" ,"png/FruitBowl.jpg", "png/spectrum.jpg"};
@@ -22,22 +25,20 @@ int iconXOffset;
 int iconYOffset;
 int offset = 190;
 color c = 0;
-boolean pencil = true, brush=false, dropper=false,brush2=false,eraser=false,rectangle=false,circle=false,oval=false,triangle=false;
+boolean pencil = true, brush = false, dropper = false,brush2 = false,eraser = false,rectangle = false,circle = false,oval = false,triangle = false;
 int startX, startY, endX, endY;
 int posX, posY, shapeWidth, shapeHeight;
-ArrayList <PVector> points = new ArrayList <PVector> ();
 
 void setup(){
   image(img,offset,0);
-
+  
   for(int i = 0; i < files.length; i++){
     images[i] = loadImage(files[i]);
     if(i >= 1){
       images[i].resize(50,50);
     }
   }
-  rectMode(CORNERS);
-  
+  rectMode(CORNERS); 
   noFill();
   grayFruit = images[10].copy();
   negativeFruit = images[10].copy();
@@ -151,7 +152,7 @@ void keyPressed(){
  }
  else if(key == CODED){
     if(keyCode == UP){
-      if(sw < 50){
+      if(sw < 25){
         sw+=1;    
       }
     }
@@ -165,7 +166,7 @@ void keyPressed(){
 }//end KeyPressed
 
 void mousePressed(){
-  //tools
+  // Get the selected tool and coordinates
 
   startX = mouseX; startY = mouseY;
    if((mouseX >= 10 && mouseX <= 60)&&(mouseY >= 25 && mouseY <= 75)) {
@@ -234,14 +235,12 @@ void mousePressed(){
      currentImg.filter(INVERT);
      image(currentImg, offset, 0);
    }
-     
-   //Colors
-   if((mouseX >= 1 && mouseX <= 190)&&(mouseY >= 300 && mouseY <= 490)) print("Colors");
 }//End MousePresed
 
+//Wrapper for drawing triangles (not perfect, but it draws triangles)
 void triangleWrapper(float startx,float starty,float endx,float endy){
-  triangle(startx + (endx - startx)/2,endy, startx, starty, endx, starty);
-  
+  strokeWeight(sw);
+  triangle(startx + (endx - startx)/2,endy, startx, starty, endx, starty); 
 }
 
 void mouseReleased() {
